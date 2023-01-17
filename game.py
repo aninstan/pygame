@@ -1,17 +1,20 @@
 import pygame
 import sys
-from screen import create_screen_and_canvas
+from vec2 import Vec2
 from game_classes import GameObject
+from assets_loader import tile_img
+from world import World
+
 
 pygame.init()
 clock = pygame.time.Clock()
 FPS = 60
 
-screen, canvas = create_screen_and_canvas()
+world = World(200, 200)
 
-tile = pygame.image.load("assets/testtile20px.png")
+tile = GameObject(Vec2(0, 0), tile_img)
 
-test = GameObject(100, 100, tile)
+world.objects.append(tile)
 
 # Main game loop
 while True:
@@ -22,12 +25,24 @@ while True:
             sys.exit()
         elif event.type == pygame.KEYDOWN:
             match event.key:
+
                 case pygame.K_ESCAPE:
                     sys.exit()
+                
+                case pygame.K_LEFT:
+                    world.offset.x -= 10
+                
+                case pygame.K_RIGHT:
+                    world.offset.x += 10
+                
+                case pygame.K_DOWN:
+                    world.offset.y -= 10
+                
+                case pygame.K_UP:
+                    world.offset.y += 10
+                
     
-    canvas.fill((50, 50, 50))
-    test.draw(canvas)
+    world.draw()
 
-    screen.blit(pygame.transform.scale(canvas, screen.get_rect().size), (0, 0))
     pygame.display.flip()
     clock.tick(FPS)

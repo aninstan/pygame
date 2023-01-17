@@ -16,6 +16,8 @@ sprite_sheet = spritesheets.SpriteSheet(sprite_sheet_image)
 BLACK = (0, 0, 0)
 BG = (50, 50, 50)
 
+#walking animation: down left, down right, up right, up left
+
 animation_list = []
 animation_steps = [4, 4, 4, 4]
 action = 0

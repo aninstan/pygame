@@ -1,0 +1,2 @@
+TILE_SIZE = 20
+FPS = 60

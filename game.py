@@ -10,11 +10,12 @@ from constants import FPS
 pygame.init()
 clock = pygame.time.Clock()
 
-world = World(10, 5)
+cropped = pygame.Surface((20, 30))
+cropped.blit(player_img, (0, 0))
 
-player = Character(Vec2(0, 0), player_img)
+player = Character(Vec2(0, 0), cropped)
+world = World(10, 5, player)
 
-# world.objects.append(player)
 
 # Main game loop
 while True:

@@ -1,2 +1,3 @@
 TILE_SIZE = 20
 FPS = 60
+BLACK = (0, 0, 0)

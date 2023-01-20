@@ -1,5 +1,5 @@
 import pygame
-import spritesheets
+import spritesheet
 
 ##
 pygame.init()
@@ -13,9 +13,9 @@ pygame.display.set_caption('Spritesheets')
 sprite_sheet_image = pygame.image.load('assets/character_animations.png').convert_alpha()
 hand_sprite_sheet_image = pygame.image.load("assets/bullet_hand.png").convert_alpha()
 gun_sprite_sheet_image = pygame.image.load("assets/gun_chest.png").convert_alpha()
-hand_sprite_sheet = spritesheets.SpriteSheet(hand_sprite_sheet_image)
-sprite_sheet = spritesheets.SpriteSheet(sprite_sheet_image)
-gun_sprite_sheet = spritesheets.SpriteSheet(gun_sprite_sheet_image)
+hand_sprite_sheet = spritesheet.SpriteSheet(hand_sprite_sheet_image)
+sprite_sheet = spritesheet.SpriteSheet(sprite_sheet_image)
+gun_sprite_sheet = spritesheet.SpriteSheet(gun_sprite_sheet_image)
 
 BLACK = (0, 0, 0)
 BG = (50, 50, 50)

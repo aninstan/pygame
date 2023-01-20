@@ -1,20 +1,21 @@
 import pygame
 import sys
 from vec2 import Vec2
-from game_classes import GameObject
-from assets_loader import tile_img
+from game_classes import Character
 from world import World
+from assets_loader import player_img
+from constants import FPS
 
 
 pygame.init()
 clock = pygame.time.Clock()
-FPS = 60
 
-world = World(200, 200)
+cropped = pygame.Surface((20, 30))
+cropped.blit(player_img, (0, 0))
 
-tile = GameObject(Vec2(0, 0), tile_img)
+player = Character(Vec2(0, 0), cropped)
+world = World(10, 5, player)
 
-world.objects.append(tile)
 
 # Main game loop
 while True:
@@ -28,18 +29,40 @@ while True:
 
                 case pygame.K_ESCAPE:
                     sys.exit()
-                
-                case pygame.K_LEFT:
-                    world.offset.x -= 10
-                
-                case pygame.K_RIGHT:
-                    world.offset.x += 10
-                
-                case pygame.K_DOWN:
-                    world.offset.y -= 10
-                
-                case pygame.K_UP:
-                    world.offset.y += 10
+            
+            if event.key == pygame.K_w:
+                player.pos.y -= 10
+                world.offset.y -= 10
+            
+            if event.key == pygame.K_a:
+                player.pos.x -= 10
+                world.offset.x -= 10
+            
+            if event.key == pygame.K_s:
+                player.pos.y += 10
+                world.offset.y += 10
+            
+            if event.key == pygame.K_d:
+                player.pos.x += 10
+                world.offset.x += 10
+            
+        keys = pygame.key.get_pressed()
+
+        # if keys[pygame.K_w]:
+        #     player.pos.y -= 10
+        #     world.offset.y -= 10
+            
+        # if keys[pygame.K_a]:
+        #     player.pos.x -= 10
+        #     world.offset.x -= 10
+        
+        # if keys[pygame.K_s]:
+        #     player.pos.y += 10
+        #     world.offset.y += 10
+        
+        # if keys[pygame.K_d]:
+        #     player.pos.x += 10
+        #     world.offset.x += 10
                 
     
     world.draw()

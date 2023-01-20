@@ -11,7 +11,11 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption('Spritesheets')
 
 sprite_sheet_image = pygame.image.load('assets/character_animations.png').convert_alpha()
+hand_sprite_sheet_image = pygame.image.load("assets/bullet_hand.png").convert_alpha()
+gun_sprite_sheet_image = pygame.image.load("assets/gun_chest.png").convert_alpha()
+hand_sprite_sheet = spritesheets.SpriteSheet(hand_sprite_sheet_image)
 sprite_sheet = spritesheets.SpriteSheet(sprite_sheet_image)
+gun_sprite_sheet = spritesheets.SpriteSheet(gun_sprite_sheet_image)
 
 BLACK = (0, 0, 0)
 BG = (50, 50, 50)
@@ -20,15 +24,14 @@ BG = (50, 50, 50)
 #walking animation: 4 down right, 5 down left, 6 up right, 7 up left
 
 animation_list = []
+hand = []
+gun = []
 animation_steps = [4, 4, 4, 4, 4, 4, 4, 4]
 action = 0
 last_update = pygame.time.get_ticks()
 animation_cooldown = 150
 frame = 0
 step_counter = 0
-
-
-
 
 for animation in animation_steps:
     temp_img_list = []
@@ -37,8 +40,14 @@ for animation in animation_steps:
         step_counter += 1
     animation_list.append(temp_img_list)
 
-##
+for i in range(2):
+    hand.append(hand_sprite_sheet.get_image(0, 16, 16, 3, BLACK))
+
+for i in range(2):
+    gun.append(gun_sprite_sheet.get_image(1, 16, 16, 3, BLACK))
+
 run = True
+
 while run:
 	#update background
     screen.fill(BG)
@@ -51,6 +60,8 @@ while run:
             frame = 0
 
     screen.blit(animation_list[action][frame], (100, 100))
+    screen.blit(hand[0], (155, 170))
+    screen.blit(gun[0], (160, 170))
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:

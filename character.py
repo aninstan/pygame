@@ -15,4 +15,5 @@ class Character():
         screen.blit(self.animation_list.list[self.animation_index][self.animation_frame], (self.pos.x - offset.x, self.pos.y - offset.y))
 
     def update(self, dt):
-        self.pos += self.direction.get_scaled(dt * TILE_SIZE * self.speed / 1000)
+        if (self.direction.abs() != 0):
+            self.pos += self.direction.normalized().get_scaled(dt * TILE_SIZE * self.speed / 1000)

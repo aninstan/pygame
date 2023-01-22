@@ -1,19 +1,33 @@
+from pygame import Surface
 from vec2 import Vec2
+from game_classes import Weapon
+from animation import AnimationList
 from constants import TILE_SIZE
 
 
 class Character():
-    def __init__(self, pos, speed, animation_list):
+    def __init__(self, pos: Vec2, hand_offset: Vec2, speed: float, animation_list: AnimationList, hand_img: Surface, weapon: Weapon):
         self.pos = pos
+        self.hand_offset = hand_offset
         self.speed = speed
         self.direction = Vec2(0, 0)
+
         self.animation_list = animation_list
-        self.animation_index = 2
+        self.animation_index = 0
         self.animation_frame = 0
 
-    def draw(self, screen, offset):
-        screen.blit(self.animation_list.list[self.animation_index][self.animation_frame], (self.pos.x - offset.x, self.pos.y - offset.y))
+        self.hand_img = hand_img
 
-    def update(self, dt):
+        self.weapon = weapon
+        self.weapon.pos = pos + hand_offset - weapon.grip_offset
+
+    def draw(self, screen: Surface, offset: Vec2):
+        screen.blit(self.animation_list.list[self.animation_index][self.animation_frame], (self.pos.x - offset.x, self.pos.y - offset.y))
+        self.weapon.draw(screen, offset)
+        screen.blit(self.hand_img, (self.pos.x - offset.x + self.hand_offset.x, self.pos.y - offset.y + self.hand_offset.y))
+
+    def update(self, dt: int):
         if (self.direction.abs() != 0):
-            self.pos += self.direction.normalized().get_scaled(dt * TILE_SIZE * self.speed / 1000)
+            movement = self.direction.normalized() * (dt * TILE_SIZE * self.speed / 1000)
+            self.pos += movement
+            self.weapon.pos += movement

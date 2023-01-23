@@ -4,15 +4,15 @@ from vec2 import Vec2
 from world import World
 from character import Character
 from game_classes import Weapon
-from assets_loader import player_animation_list, ak47_img, bullet_img, hand_img
+from assets_loader import player_animation_list, gun_img, bullet_img, hand_img
 from constants import FPS, TILE_SIZE
 
 pygame.init()
 clock = pygame.time.Clock()
 
-ak47 = Weapon(Vec2(0, 0), Vec2(5, 10), Vec2(20, 0), 15, ak47_img, bullet_img)
+gun = Weapon(Vec2(0, 0), Vec2(5, 10), Vec2(45, 5), 15, gun_img, bullet_img)
 
-player = Character(Vec2(-10, -15), Vec2(15, 23), 5, player_animation_list, hand_img, ak47)
+player = Character(Vec2(-10, -15), Vec2(15, 23), 5, player_animation_list, hand_img, gun)
 
 world = World(10, 5, player)
 

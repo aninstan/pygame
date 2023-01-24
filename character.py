@@ -25,6 +25,7 @@ class Character():
         screen.blit(self.animation_list.list[self.animation_index][self.animation_frame], (self.pos.x - offset.x, self.pos.y - offset.y))
         self.weapon.draw(screen, offset)
         screen.blit(self.hand_img, (self.pos.x - offset.x + self.hand_offset.x, self.pos.y - offset.y + self.hand_offset.y))
+        screen.blit(self.hand_img, (self.weapon.pos.x - offset.x + self.weapon.tip_offset.x, self.weapon.pos.y - offset.y + self.weapon.tip_offset.y))
 
     def update(self, dt: int):
         if (self.direction.abs() != 0):

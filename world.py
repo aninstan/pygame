@@ -18,7 +18,21 @@ class World:
         for y in range(height):
             for x in range(width):
                 self.floortiles.append(GameObject(Vec2(x*TILE_SIZE - TILE_SIZE*width/2, y*TILE_SIZE - TILE_SIZE*height/2), tile_img))
+    
+    def check_wall_collision(self, character: Character):
+        if (character.pos.x < self.floortiles[0].pos.x):
+            character.weapon.pos.x += abs(character.pos.x - self.floortiles[0].pos.x)
+            character.pos.x = self.floortiles[0].pos.x
+        elif (character.pos.x > self.floortiles[-1].pos.x):
+            character.weapon.pos.x -= abs(character.pos.x - self.floortiles[-1].pos.x)
+            character.pos.x = self.floortiles[-1].pos.x
 
+        if (character.pos.y < self.floortiles[0].pos.y):
+            character.weapon.pos.y += abs(character.pos.y - self.floortiles[0].pos.y)
+            character.pos.y = self.floortiles[0].pos.y
+        elif (character.pos.y > self.floortiles[-1].pos.y):
+            character.weapon.pos.y -= abs(character.pos.y - self.floortiles[-1].pos.y)
+            character.pos.y = self.floortiles[-1].pos.y
 
     def handle_input(self, event: pygame.event.Event):
         if event.type == pygame.KEYDOWN:

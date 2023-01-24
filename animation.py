@@ -1,8 +1,9 @@
+from spritesheet import SpriteSheet
 from constants import BLACK
 
 
 class AnimationList():
-    def __init__(self, spritesheet, steps):
+    def __init__(self, spritesheet: SpriteSheet, steps: list[int]):
         self.list = []
         self.steps = steps
         for n, animation in enumerate(steps):

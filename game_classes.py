@@ -39,6 +39,6 @@ class Weapon(GameObject):
         for bullet in self.bullets:
             bullet.update_pos(dt)
     
-    def draw_bullets(self, screen, offset):
+    def draw_bullets(self, screen: Surface, offset: Vec2):
         for bullet in self.bullets:
             bullet.draw(screen, offset)

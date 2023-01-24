@@ -1,4 +1,5 @@
 import pygame
+import copy
 import sys
 from vec2 import Vec2
 from world import World
@@ -17,10 +18,8 @@ hand_img.fill((255, 0, 0))
 
 player = Character(Vec2(-10, -15), Vec2(15, 23), 5, player_animation_list, hand_img, ak47)
 
-world = World(10, 5, player)
+world = World(15, 20, player)
 
-
-time = 0
 
 # Main game loop
 while True:
@@ -36,21 +35,28 @@ while True:
 
         world.handle_input(event)
 
-    new_time = pygame.time.get_ticks()
-    dt = new_time - time
-    time = new_time
+    # Get time in milliseconds
+    time = pygame.time.get_ticks()
+    dt = clock.tick(FPS)
 
-    player.animation_frame = int((time / FPS)) % player_animation_list.steps[player.animation_index]
+    player.animation_frame = int((time / FPS / 3)) % player_animation_list.steps[player.animation_index]
 
     if (player.direction.abs() != 0):
+
         player.update(dt)
-        world.offset += player.direction.normalized() * (dt * TILE_SIZE * player.speed / 1000)
+
+        player_wall_collision_pos_change = copy.deepcopy(player.pos)
+        world.check_wall_collision(player)
+        player_wall_collision_pos_change -= player.pos
+        
+        world.offset += player.direction.normalized() * (dt * TILE_SIZE * player.speed / 1000) - player_wall_collision_pos_change
 
 
     player.weapon.update_bullets(dt)
 
     world.draw()
 
+    # player.weapon.shoot()
+
     pygame.display.flip()
     
-    clock.tick(FPS)

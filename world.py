@@ -19,20 +19,49 @@ class World:
             for x in range(width):
                 self.floortiles.append(GameObject(Vec2(x*TILE_SIZE - TILE_SIZE*width/2, y*TILE_SIZE - TILE_SIZE*height/2), tile_img))
     
-    def check_wall_collision(self, character: Character):
-        if (character.pos.x < self.floortiles[0].pos.x):
+
+    def out_of_bounds(self, object: GameObject) -> int:
+
+        """Returns an integer with information about whether the object is out of bounds"""
+
+        result = 0
+
+        # West
+        if (object.pos.x < self.floortiles[0].pos.x):
+            result |= 8
+
+        # East
+        elif (object.pos.x + object.img.get_rect().width > self.floortiles[-1].pos.x + TILE_SIZE):
+            result |= 2
+        
+        # North
+        if (object.pos.y < self.floortiles[0].pos.y):
+            result |= 1
+        
+        # South
+        elif (object.pos.y + object.img.get_rect().height > self.floortiles[-1].pos.y + TILE_SIZE):
+            result |= 4
+        
+        return result
+    
+    def fix_out_of_bounds(self, character: Character):
+        character_out_of_bounds_result = self.out_of_bounds(character)
+
+        if (character_out_of_bounds_result & 8):
             character.weapon.pos.x += abs(character.pos.x - self.floortiles[0].pos.x)
             character.pos.x = self.floortiles[0].pos.x
-        elif (character.pos.x > self.floortiles[-1].pos.x):
+        
+        elif (character_out_of_bounds_result & 2):
             character.weapon.pos.x -= abs(character.pos.x - self.floortiles[-1].pos.x)
             character.pos.x = self.floortiles[-1].pos.x
 
-        if (character.pos.y < self.floortiles[0].pos.y):
+        if (character_out_of_bounds_result & 1):
             character.weapon.pos.y += abs(character.pos.y - self.floortiles[0].pos.y)
             character.pos.y = self.floortiles[0].pos.y
-        elif (character.pos.y > self.floortiles[-1].pos.y):
-            character.weapon.pos.y -= abs(character.pos.y - self.floortiles[-1].pos.y)
-            character.pos.y = self.floortiles[-1].pos.y
+        
+        elif (character_out_of_bounds_result & 4):
+            character.weapon.pos.y -= abs(+ character.img.get_rect().height + character.pos.y - self.floortiles[-1].pos.y - TILE_SIZE)
+            character.pos.y = self.floortiles[-1].pos.y - character.img.get_rect().height + TILE_SIZE
 
     def handle_input(self, event: pygame.event.Event):
         if event.type == pygame.KEYDOWN:

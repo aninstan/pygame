@@ -12,7 +12,3 @@ player_animation_list = AnimationList(player_sprite_sheet, [4, 4, 4, 4, 4, 4, 4,
 gun_img = pygame.image.load("assets/gun.png")
 bullet_img = pygame.image.load("./assets/bullet.png")
 hand_img = pygame.image.load("./assets/hand.png")
-
-ak47_img = pygame.image.load("assets/ak47.png")
-
-duo_img = pygame.image.load("./assets/buffed_bird_yes.png")

@@ -5,15 +5,15 @@ from vec2 import Vec2
 from world import World
 from character import Character
 from game_classes import Weapon
-from assets_loader import player_animation_list, gun_img, bullet_img, hand_img
+from assets_loader import player_animation_list, rotated_gun_array, bullet_img, hand_img
 from constants import FPS, TILE_SIZE
 
 pygame.init()
 clock = pygame.time.Clock()
 
-gun = Weapon(Vec2(0, 0), Vec2(10, 10), Vec2(45, 5), 15, gun_img, bullet_img)
+gun = Weapon(Vec2(0, 0), Vec2(31, -7), 15, rotated_gun_array, bullet_img)
 
-player = Character(Vec2(-10, -15), Vec2(15, 23), 5, player_animation_list, hand_img, gun)
+player = Character(Vec2(-10, -15), Vec2(16, 26), 5, player_animation_list, hand_img, gun)
 
 world = World(8, 5, player)
 
@@ -38,6 +38,11 @@ while True:
 
     # Change animation frame of player based on total elapsed time
     player.animation_frame = int((time / FPS / 3)) % player_animation_list.steps[player.animation_index]
+
+    if (player.direction.abs() > 0):
+        player.animation_index = 4
+    else:
+        player.animation_index = 0
 
     # No need to update character if it is standing still
     if (player.direction.abs() != 0):

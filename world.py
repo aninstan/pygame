@@ -1,4 +1,5 @@
 import pygame
+import math
 from vec2 import Vec2
 from game_classes import GameObject
 from character import Character
@@ -44,6 +45,7 @@ class World:
         
         return result
     
+
     def fix_out_of_bounds(self, character: Character):
         character_out_of_bounds_result = self.out_of_bounds(character)
 
@@ -62,6 +64,7 @@ class World:
         elif (character_out_of_bounds_result & 4):
             character.weapon.pos.y -= abs(+ character.img.get_rect().height + character.pos.y - self.floortiles[-1].pos.y - TILE_SIZE)
             character.pos.y = self.floortiles[-1].pos.y - character.img.get_rect().height + TILE_SIZE
+
 
     def handle_input(self, event: pygame.event.Event):
         if event.type == pygame.KEYDOWN:
@@ -96,11 +99,24 @@ class World:
         elif event.type == pygame.MOUSEMOTION:
             mouse_pos = pygame.mouse.get_pos()
 
-            # Scale mouse pos to match position on canvas, not screen
+            # Scale mouse position to match position on canvas, not screen
             mouse_pos = Vec2(mouse_pos[0]*self.canvas.get_rect().width/self.screen.get_rect().width, mouse_pos[1]*self.canvas.get_rect().height/self.screen.get_rect().height)
 
             # Point weapon towards mouse
-            self.player.weapon.direction = Vec2(self.offset.x + mouse_pos.x - self.player.weapon.pos.x - self.player.weapon.tip_offset.x, self.offset.y + mouse_pos.y - self.player.weapon.pos.y - self.player.weapon.tip_offset.y)
+            # self.player.weapon.direction = Vec2(self.offset.x + mouse_pos.x - self.player.weapon.pos.x - self.player.weapon.tip_offset.x, self.offset.y + mouse_pos.y - self.player.weapon.pos.y - self.player.weapon.tip_offset.y)
+            weapon_mouse_offset = Vec2(mouse_pos.x - (self.player.pos.x + self.player.hand_offset.x - self.offset.x), mouse_pos.y - (self.player.pos.y +  self.player.hand_offset.y - self.offset.y))
+            angle = math.atan(weapon_mouse_offset.y / weapon_mouse_offset.x)
+            if weapon_mouse_offset.x < 0:
+                angle += math.pi
+            if weapon_mouse_offset.y < 0 and weapon_mouse_offset.x > 0:
+                angle += 2*math.pi
+            
+            # angle += abs(math.atan(self.player.weapon.hand_to_tip.y / self.player.weapon.hand_to_tip.x))
+            img_index = round(angle / (2*math.pi) * len(self.player.weapon.rotated_image_array))
+            print(img_index)
+            self.player.weapon.img = self.player.weapon.rotated_image_array[img_index % len(self.player.weapon.rotated_image_array)]
+
+            self.player.weapon.angle = angle
 
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -121,6 +137,11 @@ class World:
         
         self.player.draw(self.canvas, self.offset)
         self.player.weapon.draw_bullets(self.canvas, self.offset)
+
+        mouse_pos = pygame.mouse.get_pos()
+        mouse_pos = Vec2(mouse_pos[0]*self.canvas.get_rect().width/self.screen.get_rect().width, mouse_pos[1]*self.canvas.get_rect().height/self.screen.get_rect().height)
+
+        pygame.draw.line(self.canvas, (0, 255, 0), (self.player.pos.x + self.player.hand_offset.x - self.offset.x, self.player.pos.y +  self.player.hand_offset.y - self.offset.y), (mouse_pos.x, mouse_pos.y), 1)
 
         # Draw resized image on screen
         self.screen.blit(pygame.transform.scale(self.canvas, self.screen.get_rect().size), (0, 0))

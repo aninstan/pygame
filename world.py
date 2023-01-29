@@ -103,20 +103,20 @@ class World:
             mouse_pos = Vec2(mouse_pos[0]*self.canvas.get_rect().width/self.screen.get_rect().width, mouse_pos[1]*self.canvas.get_rect().height/self.screen.get_rect().height)
 
             # Point weapon towards mouse
-            # self.player.weapon.direction = Vec2(self.offset.x + mouse_pos.x - self.player.weapon.pos.x - self.player.weapon.tip_offset.x, self.offset.y + mouse_pos.y - self.player.weapon.pos.y - self.player.weapon.tip_offset.y)
             weapon_mouse_offset = Vec2(mouse_pos.x - (self.player.pos.x + self.player.hand_offset.x - self.offset.x), mouse_pos.y - (self.player.pos.y +  self.player.hand_offset.y - self.offset.y))
-            angle = math.atan(weapon_mouse_offset.y / weapon_mouse_offset.x)
+            self.player.weapon.angle = math.atan(weapon_mouse_offset.y / weapon_mouse_offset.x)
             if weapon_mouse_offset.x < 0:
-                angle += math.pi
+                self.player.weapon.angle += math.pi
             if weapon_mouse_offset.y < 0 and weapon_mouse_offset.x > 0:
-                angle += 2*math.pi
+                self.player.weapon.angle += 2*math.pi
             
             # angle += abs(math.atan(self.player.weapon.hand_to_tip.y / self.player.weapon.hand_to_tip.x))
-            img_index = round(angle / (2*math.pi) * len(self.player.weapon.rotated_image_array))
+            img_index = round(self.player.weapon.angle / (2*math.pi) * len(self.player.weapon.rotated_image_array))
             print(img_index)
             self.player.weapon.img = self.player.weapon.rotated_image_array[img_index % len(self.player.weapon.rotated_image_array)]
 
-            self.player.weapon.angle = angle
+            self.player.weapon.hand_to_tip = Vec2(math.cos(self.player.weapon.angle + self.player.weapon.hand_to_tip_angle), math.sin(self.player.weapon.angle + self.player.weapon.hand_to_tip_angle)) * self.player.weapon.hand_to_tip.abs()
+
 
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -141,7 +141,7 @@ class World:
         mouse_pos = pygame.mouse.get_pos()
         mouse_pos = Vec2(mouse_pos[0]*self.canvas.get_rect().width/self.screen.get_rect().width, mouse_pos[1]*self.canvas.get_rect().height/self.screen.get_rect().height)
 
-        pygame.draw.line(self.canvas, (0, 255, 0), (self.player.pos.x + self.player.hand_offset.x - self.offset.x, self.player.pos.y +  self.player.hand_offset.y - self.offset.y), (mouse_pos.x, mouse_pos.y), 1)
+        # pygame.draw.line(self.canvas, (0, 255, 0), (self.player.pos.x + self.player.hand_offset.x - self.offset.x, self.player.pos.y +  self.player.hand_offset.y - self.offset.y), (mouse_pos.x, mouse_pos.y), 1)
 
         # Draw resized image on screen
         self.screen.blit(pygame.transform.scale(self.canvas, self.screen.get_rect().size), (0, 0))

@@ -31,9 +31,7 @@ class Character(GameObject):
         self.weapon.draw(screen, offset)
         screen.blit(self.hand_img, (self.pos.x - offset.x + self.hand_offset.x - self.hand_img.get_width()/2, self.pos.y - offset.y + self.hand_offset.y - self.hand_img.get_height()/2))
         
-        self.weapon.hand_to_tip = Vec2(math.cos(self.weapon.angle + self.weapon.hand_to_tip_angle), math.sin(self.weapon.angle + self.weapon.hand_to_tip_angle)) * self.weapon.hand_to_tip.abs()
-        
-        screen.blit(self.hand_img, (self.weapon.pos.x - offset.x + self.weapon.hand_to_tip.x, self.weapon.pos.y - offset.y + self.weapon.hand_to_tip.y))
+        # screen.blit(self.hand_img, (self.weapon.pos.x - offset.x + self.weapon.hand_to_tip.x, self.weapon.pos.y - offset.y + self.weapon.hand_to_tip.y))
 
     def update(self, dt: int):
         if (self.direction.abs() != 0):

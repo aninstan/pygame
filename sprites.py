@@ -20,6 +20,10 @@ BG = (50, 50, 50)
 #idle animation: 0 down left, 1 down right, 2 up right, 3 up left
 #walking animation: 4 down right, 5 down left, 6 up right, 7 up left
 
+#bat spritesheet: 25x15px
+#chest spritesheet: 32x24px
+#bullet enemy spritesheet: 30x17px
+
 animation_list = []
 hand = []
 gun = []

@@ -1,25 +1,40 @@
 import pygame
+import random
 import math
+import copy
 from vec2 import Vec2
 from game_classes import GameObject
 from character import Character
 from screen import create_screen_and_canvas
-from assets_loader import tile_img
-from constants import TILE_SIZE
+from assets_loader import tile_img, bullet_enemy_animation_list, bullet_enemy_hand_img, flare_gun
+from constants import TILE_SIZE, WEAPON_ROTATE_RESOLUTION
 
 
 class World:
     def __init__(self, width: int, height: int, player: Character):
+        
         self.width = width
         self.height = height
-        self.player = player
+        
         self.screen, self.canvas = create_screen_and_canvas()
+        
+        self.player = player
+        
         self.offset = Vec2(int(-self.canvas.get_rect().width/2), int(-self.canvas.get_rect().height/2))
+        
         self.floortiles: list[GameObject] = []
         for y in range(height):
             for x in range(width):
                 self.floortiles.append(GameObject(Vec2(x*TILE_SIZE - TILE_SIZE*width/2, y*TILE_SIZE - TILE_SIZE*height/2), tile_img))
+        
+        self.gunners: list[Character] = []
+        for i in range(5):
+            self.spawn_gunner(Vec2(random.randint(0, self.width * TILE_SIZE), random.randint(0, self.height * TILE_SIZE)) + self.offset)
     
+    def spawn_gunner(self, pos: Vec2):
+        new_gun = copy.copy(flare_gun)
+        self.gunners.append(Character(pos, Vec2(15, 25), 3, bullet_enemy_animation_list, bullet_enemy_hand_img, new_gun))
+
 
     def out_of_bounds(self, object: GameObject) -> int:
 
@@ -32,7 +47,7 @@ class World:
             result |= 8
 
         # East
-        elif (object.pos.x + object.img.get_rect().width > self.floortiles[-1].pos.x + TILE_SIZE):
+        elif (object.pos.x + object.img.get_width() > self.floortiles[-1].pos.x + TILE_SIZE):
             result |= 2
         
         # North
@@ -40,7 +55,7 @@ class World:
             result |= 1
         
         # South
-        elif (object.pos.y + object.img.get_rect().height > self.floortiles[-1].pos.y + TILE_SIZE):
+        elif (object.pos.y + object.img.get_height() > self.floortiles[-1].pos.y + TILE_SIZE):
             result |= 4
         
         return result
@@ -54,16 +69,16 @@ class World:
             character.pos.x = self.floortiles[0].pos.x
         
         elif (character_out_of_bounds_result & 2):
-            character.weapon.pos.x -= abs(character.pos.x - self.floortiles[-1].pos.x)
-            character.pos.x = self.floortiles[-1].pos.x
+            character.weapon.pos.x -= abs(character.img.get_width() + character.pos.x - self.floortiles[-1].pos.x - TILE_SIZE)
+            character.pos.x = self.floortiles[-1].pos.x - character.img.get_width() + TILE_SIZE
 
         if (character_out_of_bounds_result & 1):
             character.weapon.pos.y += abs(character.pos.y - self.floortiles[0].pos.y)
             character.pos.y = self.floortiles[0].pos.y
         
         elif (character_out_of_bounds_result & 4):
-            character.weapon.pos.y -= abs(+ character.img.get_rect().height + character.pos.y - self.floortiles[-1].pos.y - TILE_SIZE)
-            character.pos.y = self.floortiles[-1].pos.y - character.img.get_rect().height + TILE_SIZE
+            character.weapon.pos.y -= abs(character.img.get_height() + character.pos.y - self.floortiles[-1].pos.y - TILE_SIZE)
+            character.pos.y = self.floortiles[-1].pos.y - character.img.get_height() + TILE_SIZE
 
 
     def handle_input(self, event: pygame.event.Event):
@@ -111,9 +126,9 @@ class World:
                 self.player.weapon.angle += 2*math.pi
             
             # angle += abs(math.atan(self.player.weapon.hand_to_tip.y / self.player.weapon.hand_to_tip.x))
-            img_index = round(self.player.weapon.angle / (2*math.pi) * len(self.player.weapon.rotated_image_array))
+            img_index = round(self.player.weapon.angle / (2*math.pi) * WEAPON_ROTATE_RESOLUTION)
             print(img_index)
-            self.player.weapon.img = self.player.weapon.rotated_image_array[img_index % len(self.player.weapon.rotated_image_array)]
+            self.player.weapon.img = self.player.weapon.rotated_image_array[img_index % WEAPON_ROTATE_RESOLUTION]
 
             self.player.weapon.hand_to_tip = Vec2(math.cos(self.player.weapon.angle + self.player.weapon.hand_to_tip_angle), math.sin(self.player.weapon.angle + self.player.weapon.hand_to_tip_angle)) * self.player.weapon.hand_to_tip.abs()
 
@@ -134,6 +149,9 @@ class World:
         # Draw all game objects
         for tile in self.floortiles:
             tile.draw(self.canvas, self.offset)
+        
+        for gunner in self.gunners:
+            gunner.draw(self.canvas, self.offset)
         
         self.player.draw(self.canvas, self.offset)
         self.player.weapon.draw_bullets(self.canvas, self.offset)

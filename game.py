@@ -1,21 +1,15 @@
 import pygame
 import copy
 import sys
-from vec2 import Vec2
 from world import World
-from character import Character
-from game_classes import Weapon
-from assets_loader import player_animation_list, rotated_gun_array, bullet_img, hand_img
+from assets_loader import player_animation_list, player
 from constants import FPS, TILE_SIZE
 
 pygame.init()
 clock = pygame.time.Clock()
 
-gun = Weapon(Vec2(0, 0), Vec2(31, -7), 15, rotated_gun_array, bullet_img)
 
-player = Character(Vec2(-10, -15), Vec2(16, 26), 5, player_animation_list, hand_img, gun)
-
-world = World(8, 5, player)
+world = World(26, 16, player)
 
 
 # Main game loop
@@ -56,6 +50,10 @@ while True:
         world.offset += player.direction.normalized() * (dt * TILE_SIZE * player.speed / 1000) - player_out_of_bounds_pos_change
 
 
+    for gunner in world.gunners:
+        world.fix_out_of_bounds(gunner)
+
+
     player.weapon.update_bullets(dt)
 
     a = 0
@@ -64,8 +62,6 @@ while True:
         if (world.out_of_bounds(player.weapon.bullets[a])):
             del player.weapon.bullets[a]
         a += 1
-
-    # player.weapon.shoot()
 
     world.draw()
 

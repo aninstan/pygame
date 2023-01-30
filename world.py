@@ -1,13 +1,12 @@
 import pygame
 import random
-import math
 import copy
 from vec2 import Vec2
 from game_classes import GameObject
 from character import Character
 from screen import create_screen_and_canvas
 from assets_loader import tile_img, bullet_enemy_animation_list, bullet_enemy_hand_img, flare_gun
-from constants import TILE_SIZE, WEAPON_ROTATE_RESOLUTION
+from constants import TILE_SIZE
 
 
 class World:
@@ -28,8 +27,8 @@ class World:
                 self.floortiles.append(GameObject(Vec2(x*TILE_SIZE - TILE_SIZE*width/2, y*TILE_SIZE - TILE_SIZE*height/2), tile_img))
         
         self.gunners: list[Character] = []
-        for i in range(5):
-            self.spawn_gunner(Vec2(random.randint(0, self.width * TILE_SIZE), random.randint(0, self.height * TILE_SIZE)) + self.offset)
+        for i in range(40):
+            self.spawn_gunner(Vec2(random.randint(- width * TILE_SIZE / 2, self.width * TILE_SIZE / 2), random.randint(- height * TILE_SIZE / 2, self.height * TILE_SIZE / 2)))
     
     def spawn_gunner(self, pos: Vec2):
         new_gun = copy.copy(flare_gun)
@@ -118,20 +117,7 @@ class World:
             mouse_pos = Vec2(mouse_pos[0]*self.canvas.get_rect().width/self.screen.get_rect().width, mouse_pos[1]*self.canvas.get_rect().height/self.screen.get_rect().height)
 
             # Point weapon towards mouse
-            weapon_mouse_offset = Vec2(mouse_pos.x - (self.player.pos.x + self.player.hand_offset.x - self.offset.x), mouse_pos.y - (self.player.pos.y +  self.player.hand_offset.y - self.offset.y))
-            self.player.weapon.angle = math.atan(weapon_mouse_offset.y / weapon_mouse_offset.x)
-            if weapon_mouse_offset.x < 0:
-                self.player.weapon.angle += math.pi
-            if weapon_mouse_offset.y < 0 and weapon_mouse_offset.x > 0:
-                self.player.weapon.angle += 2*math.pi
-            
-            # angle += abs(math.atan(self.player.weapon.hand_to_tip.y / self.player.weapon.hand_to_tip.x))
-            img_index = round(self.player.weapon.angle / (2*math.pi) * WEAPON_ROTATE_RESOLUTION)
-            print(img_index)
-            self.player.weapon.img = self.player.weapon.rotated_image_array[img_index % WEAPON_ROTATE_RESOLUTION]
-
-            self.player.weapon.hand_to_tip = Vec2(math.cos(self.player.weapon.angle + self.player.weapon.hand_to_tip_angle), math.sin(self.player.weapon.angle + self.player.weapon.hand_to_tip_angle)) * self.player.weapon.hand_to_tip.abs()
-
+            self.player.point_weapon_towards(mouse_pos + self.offset)
 
 
         elif event.type == pygame.MOUSEBUTTONDOWN:

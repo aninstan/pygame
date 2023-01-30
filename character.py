@@ -3,7 +3,7 @@ import math
 from vec2 import Vec2
 from game_classes import GameObject, Weapon
 from animation import AnimationList
-from constants import TILE_SIZE
+from constants import TILE_SIZE, WEAPON_ROTATE_RESOLUTION
 
 
 class Character(GameObject):
@@ -38,3 +38,21 @@ class Character(GameObject):
             movement = self.direction.normalized() * (dt * TILE_SIZE * self.speed / 1000)
             self.pos += movement
             self.weapon.pos += movement
+    
+    def point_weapon_towards(self, point: Vec2):
+        
+        weapon_point_offset = Vec2(point.x - (self.pos.x + self.hand_offset.x), point.y - (self.pos.y +  self.hand_offset.y))
+
+        print(weapon_point_offset.x, weapon_point_offset.y)
+        
+        self.weapon.angle = math.atan(weapon_point_offset.y / weapon_point_offset.x)
+        
+        if weapon_point_offset.x < 0:
+            self.weapon.angle += math.pi
+        if weapon_point_offset.y < 0 and weapon_point_offset.x > 0:
+            self.weapon.angle += 2*math.pi
+        
+        img_index = round(self.weapon.angle / (2*math.pi) * WEAPON_ROTATE_RESOLUTION)
+        self.weapon.img = self.weapon.rotated_image_array[img_index % WEAPON_ROTATE_RESOLUTION]
+
+        self.weapon.hand_to_tip = Vec2(math.cos(self.weapon.angle + self.weapon.hand_to_tip_angle), math.sin(self.weapon.angle + self.weapon.hand_to_tip_angle)) * self.weapon.hand_to_tip.abs()

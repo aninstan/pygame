@@ -37,6 +37,10 @@ class Weapon(GameObject):
     def draw(self, screen: Surface, offset: Vec2):
         screen.blit(self.img, (self.pos.x - offset.x - self.img.get_width()/2, self.pos.y - offset.y - self.img.get_height()/2))
 
+    def draw_bullets(self, screen: Surface, offset: Vec2):
+        for bullet in self.bullets:
+            bullet.draw(screen, offset)
+    
     def shoot(self):
         self.bullets.append(Bullet(self.pos + self.hand_to_tip, Vec2(math.cos(self.angle), math.sin(self.angle)), self.bullet_velocity, self.bullet_img))
     
@@ -44,6 +48,3 @@ class Weapon(GameObject):
         for bullet in self.bullets:
             bullet.update_pos(dt)
     
-    def draw_bullets(self, screen: Surface, offset: Vec2):
-        for bullet in self.bullets:
-            bullet.draw(screen, offset)

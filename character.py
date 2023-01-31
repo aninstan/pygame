@@ -7,12 +7,14 @@ from constants import TILE_SIZE, WEAPON_ROTATE_RESOLUTION
 
 
 class Character(GameObject):
-    def __init__(self, pos: Vec2, hand_offset: Vec2, speed: float, health: int, animation_list: AnimationList, hand_img: Surface, weapon: Weapon):
+    def __init__(self, pos: Vec2, hand_offset: Vec2, speed: float, health: int, shoot_cooldown: int, animation_list: AnimationList, hand_img: Surface, weapon: Weapon):
         super().__init__(pos, animation_list.list[0][0])
         self.pos = pos
         self.hand_offset = hand_offset
         self.speed = speed
         self.health = health
+        self.shoot_cooldown = shoot_cooldown
+        self.previous_shoot_time = 0
         self.direction = Vec2(0, 0)
 
         self.animation_list = animation_list
@@ -44,14 +46,21 @@ class Character(GameObject):
         
         weapon_point_offset = Vec2(point.x - (self.pos.x + self.hand_offset.x), point.y - (self.pos.y +  self.hand_offset.y))
 
-        self.weapon.angle = math.atan(weapon_point_offset.y / weapon_point_offset.x)
-        
-        if weapon_point_offset.x < 0:
-            self.weapon.angle += math.pi
-        if weapon_point_offset.y < 0 and weapon_point_offset.x > 0:
-            self.weapon.angle += 2*math.pi
-        
-        img_index = round(self.weapon.angle / (2*math.pi) * WEAPON_ROTATE_RESOLUTION)
-        self.weapon.img = self.weapon.rotated_image_array[img_index % WEAPON_ROTATE_RESOLUTION]
+        if weapon_point_offset.x == 0:
+            if weapon_point_offset.y > 0:
+                self.weapon.angle = math.pi / 2
+            else:
+                self.weapon.angle = 3 * math.pi / 2
 
-        self.weapon.hand_to_tip = Vec2(math.cos(self.weapon.angle + self.weapon.hand_to_tip_angle), math.sin(self.weapon.angle + self.weapon.hand_to_tip_angle)) * self.weapon.hand_to_tip.abs()
+        else:
+            self.weapon.angle = math.atan(weapon_point_offset.y / weapon_point_offset.x)
+            
+            if weapon_point_offset.x < 0:
+                self.weapon.angle += math.pi
+            if weapon_point_offset.y < 0 and weapon_point_offset.x > 0:
+                self.weapon.angle += 2*math.pi
+            
+            img_index = round(self.weapon.angle / (2*math.pi) * WEAPON_ROTATE_RESOLUTION)
+            self.weapon.img = self.weapon.rotated_image_array[img_index % WEAPON_ROTATE_RESOLUTION]
+
+            self.weapon.hand_to_tip = Vec2(math.cos(self.weapon.angle + self.weapon.hand_to_tip_angle), math.sin(self.weapon.angle + self.weapon.hand_to_tip_angle)) * self.weapon.hand_to_tip.abs()

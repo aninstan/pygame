@@ -1,11 +1,12 @@
 import pygame
 import random
 import copy
+import sys
 from vec2 import Vec2
-from game_classes import GameObject
+from game_classes import GameObject, Weapon
 from character import Character
 from screen import create_screen_and_canvas
-from assets_loader import tile_img, bullet_enemy_animation_list, bullet_enemy_hand_img, flare_gun, enemy_bullet_img
+from assets_loader import tile_img, bullet_enemy_animation_list, bullet_enemy_hand_img, rotated_flare_gun_array, enemy_bullet_img
 from constants import TILE_SIZE, ANIMATION_FPS
 
 
@@ -28,13 +29,16 @@ class World:
         
         self.enemies: list[Character] = []
         for i in range(num_enemies):
-            self.spawn_gunner(Vec2(random.randint(- width * TILE_SIZE / 2, self.width * TILE_SIZE / 2), random.randint(- height * TILE_SIZE / 2, self.height * TILE_SIZE / 2)))
+            self.spawn_enemy(Vec2(random.randint(- width * TILE_SIZE / 2, width * TILE_SIZE / 2), random.randint(- height * TILE_SIZE / 2, height * TILE_SIZE / 2)))
     
-    def spawn_gunner(self, pos: Vec2):
-        new_gun = copy.copy(flare_gun)
-        new_gun.bullet_img = enemy_bullet_img
-        new_gun.bullets = []
-        self.enemies.append(Character(pos, Vec2(15, 25), 3, 3, bullet_enemy_animation_list, bullet_enemy_hand_img, new_gun))
+    def spawn_enemy(self, pos: Vec2):
+        
+        new_gun = Weapon(Vec2(0, 0), Vec2(10, -5), 7, rotated_flare_gun_array, enemy_bullet_img)
+        
+        new_enemy = Character(pos, Vec2(15, 25), 3, 3, 3000, bullet_enemy_animation_list, bullet_enemy_hand_img, new_gun)
+        new_enemy.previous_shoot_time = random.randint(0, 3000)
+
+        self.enemies.append(new_enemy)
 
 
     def out_of_bounds(self, object: GameObject) -> int:
@@ -82,7 +86,7 @@ class World:
             character.pos.y = self.floortiles[-1].pos.y - character.img.get_height() + TILE_SIZE
 
 
-    def handle_input(self, event: pygame.event.Event):
+    def handle_input(self, event: pygame.event.Event, time):
         if event.type == pygame.KEYDOWN:
             match event.key:
                 case pygame.K_w:
@@ -125,7 +129,9 @@ class World:
         elif event.type == pygame.MOUSEBUTTONDOWN:
             match event.button:
                 case 1: # Left click
-                    self.player.weapon.shoot()
+                    if time - self.player.previous_shoot_time > self.player.shoot_cooldown:
+                        self.player.weapon.shoot()
+                        self.player.previous_shoot_time = time
 
 
     def update(self, time, dt):
@@ -148,26 +154,39 @@ class World:
             
             self.offset += self.player.direction.normalized() * (dt * TILE_SIZE * self.player.speed / 1000) - player_out_of_bounds_pos_change
 
-            for gunner in self.enemies:
-                gunner.point_weapon_towards(self.player.pos + Vec2(self.player.img.get_width()/2, self.player.img.get_height()/2))
+            for enemy in self.enemies:
+                enemy.point_weapon_towards(self.player.pos + Vec2(self.player.img.get_width()/2, self.player.img.get_height()/2))
 
-        for gunner in self.enemies:
-            self.fix_out_of_bounds(gunner)
-            gunner.animation_frame = int((time * ANIMATION_FPS / 1000)) % 4
+        for enemy in self.enemies:
+            self.fix_out_of_bounds(enemy)
+            enemy.animation_frame = int((time * ANIMATION_FPS / 1000)) % 4
 
-            # gunner.weapon.shoot()
-            gunner.weapon.update_bullets(dt)
+            if time - enemy.previous_shoot_time > enemy.shoot_cooldown:
+                enemy.weapon.shoot()
+                enemy.previous_shoot_time = time
+            enemy.weapon.update_bullets(dt)
 
-            # Remove bullets from gunner which are out of bounds
+            # Remove bullets from enemy which are out of bounds
             a = 0
-            while a < len(gunner.weapon.bullets):
-                if (self.out_of_bounds(gunner.weapon.bullets[a])):
-                    del gunner.weapon.bullets[a]
-                a += 1
+            while a < len(enemy.weapon.bullets):
+                if (self.out_of_bounds(enemy.weapon.bullets[a])):
+                    del enemy.weapon.bullets[a]
+                else:
+                    a += 1
+            
+            # Remove bullets from enemy which hit player
+            a = 0
+            while a < len(enemy.weapon.bullets):
+                if enemy.weapon.bullets[a].collision(self.player):
+                    enemy.weapon.bullets.pop(a)
+                    self.player.health -= 1
+                    if self.player.health == 0:
+                        sys.exit()
+                else:
+                    a += 1
 
 
         self.player.weapon.update_bullets(dt)
-            
 
         # Remove bullets from player which are out of bounds
         a = 0
@@ -191,6 +210,7 @@ class World:
                     enemy.health -= 1
                     if self.enemies[i].health == 0:
                         self.enemies.pop(i)
+                        self.spawn_enemy(Vec2(random.randint(- self.width * TILE_SIZE / 2, self.width * TILE_SIZE / 2), random.randint(- self.height * TILE_SIZE / 2, self.height * TILE_SIZE / 2)))
                     break
             
             if not hit:
@@ -206,9 +226,9 @@ class World:
         for tile in self.floortiles:
             tile.draw(self.canvas, self.offset)
         
-        for gunner in self.enemies:
-            gunner.draw(self.canvas, self.offset)
-            gunner.weapon.draw_bullets(self.canvas, self.offset)
+        for enemy in self.enemies:
+            enemy.draw(self.canvas, self.offset)
+            enemy.weapon.draw_bullets(self.canvas, self.offset)
         
         self.player.draw(self.canvas, self.offset)
         self.player.weapon.draw_bullets(self.canvas, self.offset)

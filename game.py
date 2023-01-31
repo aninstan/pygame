@@ -1,22 +1,13 @@
 import pygame
-import math
-import copy
 import sys
-from vec2 import Vec2
 from world import World
 from assets_loader import player
-from constants import FPS, TILE_SIZE
+from constants import FPS
 
 pygame.init()
 clock = pygame.time.Clock()
 
-
-world = World(30, 30, player)
-
-
-
-print(world.floortiles[0].pos.x, world.floortiles[0].pos.y)
-print(world.offset.x, world.offset.y)
+world = World(30, 30, player, 40)
 
 # Main game loop
 while True:
@@ -36,47 +27,8 @@ while True:
     time = pygame.time.get_ticks()
     dt = clock.tick(FPS)
 
-    # Change animation frame of player based on total elapsed time
-    player.animation_frame = int((time / FPS / 3)) % 4
-
-    if (player.direction.abs() > 0):
-        player.animation_index = 4
-    else:
-        player.animation_index = 0
-
-    # No need to update character if it is standing still
-    if (player.direction.abs() != 0):
-
-        player.update(dt)
-
-        player_out_of_bounds_pos_change = copy.deepcopy(player.pos)
-        world.fix_out_of_bounds(player)
-        player_out_of_bounds_pos_change -= player.pos
-        
-        world.offset += player.direction.normalized() * (dt * TILE_SIZE * player.speed / 1000) - player_out_of_bounds_pos_change
-
-        for gunner in world.gunners:
-            gunner.point_weapon_towards(player.pos + Vec2(player.img.get_width()/2, player.img.get_height()/2))
-
-
-    for gunner in world.gunners:
-        world.fix_out_of_bounds(gunner)
-        gunner.animation_frame = int((time / FPS / 3)) % 4
-
-
-        # gunner.weapon.shoot()
-
-
-    player.weapon.update_bullets(dt)
-
-    a = 0
-
-    while a < len(player.weapon.bullets):
-        if (world.out_of_bounds(player.weapon.bullets[a])):
-            del player.weapon.bullets[a]
-        a += 1
+    world.update(time, dt)    
 
     world.draw()
 
     pygame.display.flip()
-    

@@ -11,7 +11,11 @@ class GameObject:
 
     def draw(self, screen: Surface, offset: Vec2):
         screen.blit(self.img, (self.pos.x - offset.x, self.pos.y - offset.y))
-
+    
+    def collision(self, object) -> bool:
+        collision_x = (object.pos.x < self.pos.x and self.pos.x < object.pos.x + object.img.get_width()) or (object.pos.x < self.pos.x + self.img.get_width() and self.pos.x + self.img.get_width() < object.pos.x + object.img.get_width())
+        collision_y = (object.pos.y < self.pos.y and self.pos.y < object.pos.y + object.img.get_height()) or (object.pos.y < self.pos.y + self.img.get_height() and self.pos.y + self.img.get_height() < object.pos.y + object.img.get_height())
+        return collision_x and collision_y
 
 class Bullet(GameObject):
     def __init__(self, pos: Vec2, direction: Vec2, vel: float, img: Surface):

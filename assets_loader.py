@@ -11,7 +11,7 @@ tile_img = pygame.image.load("assets/floortile2.png")
 
 player_sprite_sheet_image = pygame.image.load('assets/character_animations.png')
 player_sprite_sheet = SpriteSheet(player_sprite_sheet_image)
-player_animation_list = animation.AnimationList(player_sprite_sheet, [4, 4, 4, 4, 4, 4, 4, 4], 20, 30)
+player_animation_list = animation.AnimationList(player_sprite_sheet, [4, 4, 4, 4, 4, 4, 4, 4], 20, 21)
 player_hand_img = pygame.image.load("assets/hand.png")
 
 bullet_enemy_sprite_sheet_image = pygame.image.load("assets/bullet_enemy_animation.png")
@@ -26,10 +26,12 @@ flare_gun_img = pygame.image.load("assets/flare_gun.png")
 flipped_flare_gun_img = pygame.transform.flip(flare_gun_img, False, True)
 rotated_flare_gun_array = animation.create_rotated_image_array(flare_gun_img, Vec2(2, 5), WEAPON_ROTATE_RESOLUTION)
 
-bullet_img = pygame.image.load("./assets/bullet.png")
+player_bullet_img = pygame.image.load("./assets/bullet.png")
+enemy_bullet_img = pygame.image.load("./assets/enemy_bullet.png")
+buffed_bird_img = pygame.image.load("./assets/buffed_bird_yes.png")
 
 
-gun = Weapon(Vec2(0, 0), Vec2(31, -7), 15, rotated_gun_array, bullet_img)
-flare_gun = Weapon(Vec2(0, 0), Vec2(10, -5), 15, rotated_flare_gun_array, bullet_img)
+gun = Weapon(Vec2(0, 0), Vec2(31, -7), 15, rotated_gun_array, player_bullet_img)
+flare_gun = Weapon(Vec2(0, 0), Vec2(10, -5), 15, rotated_flare_gun_array, player_bullet_img)
 
-player = Character(Vec2(-10, -15), Vec2(16, 26), 6, player_animation_list, player_hand_img, flare_gun)
+player = Character(Vec2(-10, -15), Vec2(16, 17), 6, 3, player_animation_list, player_hand_img, flare_gun)

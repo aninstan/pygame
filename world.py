@@ -5,12 +5,12 @@ from vec2 import Vec2
 from game_classes import GameObject
 from character import Character
 from screen import create_screen_and_canvas
-from assets_loader import tile_img, bullet_enemy_animation_list, bullet_enemy_hand_img, flare_gun
-from constants import TILE_SIZE
+from assets_loader import tile_img, bullet_enemy_animation_list, bullet_enemy_hand_img, flare_gun, enemy_bullet_img
+from constants import TILE_SIZE, ANIMATION_FPS
 
 
 class World:
-    def __init__(self, width: int, height: int, player: Character):
+    def __init__(self, width: int, height: int, player: Character, num_enemies: int):
         
         self.width = width
         self.height = height
@@ -26,13 +26,15 @@ class World:
             for x in range(width):
                 self.floortiles.append(GameObject(Vec2(x*TILE_SIZE - TILE_SIZE*width/2, y*TILE_SIZE - TILE_SIZE*height/2), tile_img))
         
-        self.gunners: list[Character] = []
-        for i in range(40):
+        self.enemies: list[Character] = []
+        for i in range(num_enemies):
             self.spawn_gunner(Vec2(random.randint(- width * TILE_SIZE / 2, self.width * TILE_SIZE / 2), random.randint(- height * TILE_SIZE / 2, self.height * TILE_SIZE / 2)))
     
     def spawn_gunner(self, pos: Vec2):
         new_gun = copy.copy(flare_gun)
-        self.gunners.append(Character(pos, Vec2(15, 25), 3, bullet_enemy_animation_list, bullet_enemy_hand_img, new_gun))
+        new_gun.bullet_img = enemy_bullet_img
+        new_gun.bullets = []
+        self.enemies.append(Character(pos, Vec2(15, 25), 3, 3, bullet_enemy_animation_list, bullet_enemy_hand_img, new_gun))
 
 
     def out_of_bounds(self, object: GameObject) -> int:
@@ -126,6 +128,74 @@ class World:
                     self.player.weapon.shoot()
 
 
+    def update(self, time, dt):
+        # Change animation frame of player based on total elapsed time
+        self.player.animation_frame = int((time * ANIMATION_FPS / 1000)) % 4
+
+        if (self.player.direction.abs() > 0):
+            self.player.animation_index = 4
+        else:
+            self.player.animation_index = 0
+
+        # No need to update player and enemy weapon direction if player is standing still
+        if (self.player.direction.abs() != 0):
+
+            self.player.update(dt)
+
+            player_out_of_bounds_pos_change = copy.deepcopy(self.player.pos)
+            self.fix_out_of_bounds(self.player)
+            player_out_of_bounds_pos_change -= self.player.pos
+            
+            self.offset += self.player.direction.normalized() * (dt * TILE_SIZE * self.player.speed / 1000) - player_out_of_bounds_pos_change
+
+            for gunner in self.enemies:
+                gunner.point_weapon_towards(self.player.pos + Vec2(self.player.img.get_width()/2, self.player.img.get_height()/2))
+
+        for gunner in self.enemies:
+            self.fix_out_of_bounds(gunner)
+            gunner.animation_frame = int((time * ANIMATION_FPS / 1000)) % 4
+
+            # gunner.weapon.shoot()
+            gunner.weapon.update_bullets(dt)
+
+            # Remove bullets from gunner which are out of bounds
+            a = 0
+            while a < len(gunner.weapon.bullets):
+                if (self.out_of_bounds(gunner.weapon.bullets[a])):
+                    del gunner.weapon.bullets[a]
+                a += 1
+
+
+        self.player.weapon.update_bullets(dt)
+            
+
+        # Remove bullets from player which are out of bounds
+        a = 0
+        while a < len(self.player.weapon.bullets):
+            
+            if self.out_of_bounds(self.player.weapon.bullets[a]):
+                del self.player.weapon.bullets[a]
+            else:
+                a += 1
+
+        # Remove bullets from player which hit an enemy
+        a = 0
+        while a < len(self.player.weapon.bullets):
+            
+            hit = False
+
+            for i, enemy in enumerate(self.enemies):
+                if self.player.weapon.bullets[a].collision(enemy):
+                    self.player.weapon.bullets.pop(a)
+                    hit = True
+                    enemy.health -= 1
+                    if self.enemies[i].health == 0:
+                        self.enemies.pop(i)
+                    break
+            
+            if not hit:
+                a += 1
+
     
     def draw(self):
 
@@ -136,16 +206,15 @@ class World:
         for tile in self.floortiles:
             tile.draw(self.canvas, self.offset)
         
-        for gunner in self.gunners:
+        for gunner in self.enemies:
             gunner.draw(self.canvas, self.offset)
+            gunner.weapon.draw_bullets(self.canvas, self.offset)
         
         self.player.draw(self.canvas, self.offset)
         self.player.weapon.draw_bullets(self.canvas, self.offset)
 
         mouse_pos = pygame.mouse.get_pos()
         mouse_pos = Vec2(mouse_pos[0]*self.canvas.get_rect().width/self.screen.get_rect().width, mouse_pos[1]*self.canvas.get_rect().height/self.screen.get_rect().height)
-
-        # pygame.draw.line(self.canvas, (0, 255, 0), (self.player.pos.x + self.player.hand_offset.x - self.offset.x, self.player.pos.y +  self.player.hand_offset.y - self.offset.y), (mouse_pos.x, mouse_pos.y), 1)
 
         # Draw resized image on screen
         self.screen.blit(pygame.transform.scale(self.canvas, self.screen.get_rect().size), (0, 0))

@@ -9,7 +9,7 @@ clock = pygame.time.Clock()
 
 world = World(30, 30, player, 10)
 
-# Main game loop
+# Main game loopas
 while True:
 
     # Get time in milliseconds
@@ -26,8 +26,6 @@ while True:
                 sys.exit()
 
         world.handle_input(event, time)
-
-    # player.weapon.shoot()
 
     world.update(time, dt)
 

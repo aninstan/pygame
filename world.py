@@ -30,15 +30,16 @@ class World:
         self.enemies: list[Character] = []
         for i in range(num_enemies):
             self.spawn_enemy(Vec2(random.randint(- width * TILE_SIZE / 2, width * TILE_SIZE / 2), random.randint(- height * TILE_SIZE / 2, height * TILE_SIZE / 2)))
+            self.enemies[-1].previous_shoot_time = random.randint(1000, 3000)
+        
+        self.player_score = 0
     
     def spawn_enemy(self, pos: Vec2):
         
         new_gun = Weapon(Vec2(0, 0), Vec2(10, -5), 7, rotated_flare_gun_array, enemy_bullet_img)
         
-        new_enemy = Character(pos, Vec2(15, 25), 3, 3, 3000, bullet_enemy_animation_list, bullet_enemy_hand_img, new_gun)
-        new_enemy.previous_shoot_time = random.randint(0, 3000)
 
-        self.enemies.append(new_enemy)
+        self.enemies.append(Character(pos, Vec2(15, 25), 3, 3, 3000, bullet_enemy_animation_list, bullet_enemy_hand_img, new_gun))
 
 
     def out_of_bounds(self, object: GameObject) -> int:
@@ -210,7 +211,11 @@ class World:
                     enemy.health -= 1
                     if self.enemies[i].health == 0:
                         self.enemies.pop(i)
+                        self.player_score += 1
                         self.spawn_enemy(Vec2(random.randint(- self.width * TILE_SIZE / 2, self.width * TILE_SIZE / 2), random.randint(- self.height * TILE_SIZE / 2, self.height * TILE_SIZE / 2)))
+                        self.enemies[-1].previous_shoot_time = random.randint(time + 1000, time + 3000)
+                        print(self.player_score)
+
                     break
             
             if not hit:

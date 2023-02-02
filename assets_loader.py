@@ -35,3 +35,6 @@ gun = Weapon(Vec2(0, 0), Vec2(31, -7), 15, rotated_gun_array, player_bullet_img)
 player_flare_gun = Weapon(Vec2(0, 0), Vec2(10, -5), 15, rotated_flare_gun_array, player_bullet_img)
 
 player = Character(Vec2(-10, -15), Vec2(16, 17), 6, 3, 300, player_animation_list, player_hand_img, player_flare_gun)
+
+pygame.font.init()
+font_location = "./assets/Grand9KPixel.ttf"

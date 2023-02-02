@@ -6,7 +6,6 @@ from constants import FPS
 
 pygame.init()
 clock = pygame.time.Clock()
-
 world = World(30, 30, player, 10)
 
 # Main game loopas

@@ -140,18 +140,30 @@ class World:
         text_rect.midtop = (x, y)
         self.screen.blit(text_surface, text_rect)
 
-    def game_over_screen(self):
+    def game_over_screen(self): #Denne crasher hjelp :(
         self.screen_rect = self.screen.get_rect()
         self.screen.blit(self.screen, self.screen_rect)
         self.screen.fill(BLACK)
-        self.draw_text("GAME OVER", 64, 700, 300)
+        self.draw_text("GAME OVER", 82, 750, 300)
+        self.draw_text(("Points: " + str(self.player_score)), 24, 750, 420)
         pygame.display.flip()
+        pygame.time.delay(3000)
+        sys.exit()
 
-    def show_score(self):
-        self.screen.blit(self.draw_text(str(self.player_score), 32, self.width / 2, 10))
+    def show_score(self): #stygt men funker
+        self.canvas_rect = self.canvas.get_rect()
+        self.canvas.blit(self.canvas, self.canvas_rect)
+        self.draw_text(("Points: " + str(self.player_score)), 15, 60, 20)
+        pygame.display.flip()
+        
+        
 
-    def show_health(self):
-        self.screen.blit(self.draw_text(str(self.player_health), 32, self.width / 2, 10))
+    def show_health(self):#stygt men funker
+        self.canvas_rect = self.canvas.get_rect()
+        self.canvas.blit(self.canvas, self.canvas_rect)
+        self.draw_text(("HP: " + (str(self.player.health))), 15, 60, 40)
+        pygame.display.flip()
+        
 
     def update(self, time, dt):
         # Change animation frame of player based on total elapsed time
@@ -258,7 +270,8 @@ class World:
         
         self.player.draw(self.canvas, self.offset)
         self.player.weapon.draw_bullets(self.canvas, self.offset)
-        #self.show_score()
+        self.show_score()
+        self.show_health()
 
         mouse_pos = pygame.mouse.get_pos()
         mouse_pos = Vec2(mouse_pos[0]*self.canvas.get_rect().width/self.screen.get_rect().width, mouse_pos[1]*self.canvas.get_rect().height/self.screen.get_rect().height)

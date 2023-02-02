@@ -30,4 +30,4 @@ while True:
 
     world.draw()
 
-    pygame.display.flip()
+    pygame.display.flip() 

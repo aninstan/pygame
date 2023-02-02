@@ -6,8 +6,8 @@ from vec2 import Vec2
 from game_classes import GameObject, Weapon
 from character import Character
 from screen import create_screen_and_canvas
-from assets_loader import tile_img, bullet_enemy_animation_list, bullet_enemy_hand_img, rotated_flare_gun_array, enemy_bullet_img
-from constants import TILE_SIZE, ANIMATION_FPS
+from assets_loader import tile_img, bullet_enemy_animation_list, bullet_enemy_hand_img, rotated_flare_gun_array, enemy_bullet_img, font_location
+from constants import TILE_SIZE, ANIMATION_FPS, BLACK, WHITE
 
 
 class World:
@@ -38,7 +38,6 @@ class World:
         
         new_gun = Weapon(Vec2(0, 0), Vec2(10, -5), 7, rotated_flare_gun_array, enemy_bullet_img)
         
-
         self.enemies.append(Character(pos, Vec2(15, 25), 3, 3, 3000, bullet_enemy_animation_list, bullet_enemy_hand_img, new_gun))
 
 
@@ -134,6 +133,25 @@ class World:
                         self.player.weapon.shoot()
                         self.player.previous_shoot_time = time
 
+    def draw_text(self, text, size, x, y):
+        font = pygame.font.Font(font_location, size)
+        text_surface = font.render(text, True, WHITE)
+        text_rect = text_surface.get_rect()
+        text_rect.midtop = (x, y)
+        self.screen.blit(text_surface, text_rect)
+
+    def game_over_screen(self):
+        self.screen_rect = self.screen.get_rect()
+        self.screen.blit(self.screen, self.screen_rect)
+        self.screen.fill(BLACK)
+        self.draw_text("GAME OVER", 64, 700, 300)
+        pygame.display.flip()
+
+    def show_score(self):
+        self.screen.blit(self.draw_text(str(self.player_score), 32, self.width / 2, 10))
+
+    def show_health(self):
+        self.screen.blit(self.draw_text(str(self.player_health), 32, self.width / 2, 10))
 
     def update(self, time, dt):
         # Change animation frame of player based on total elapsed time
@@ -182,9 +200,12 @@ class World:
                     enemy.weapon.bullets.pop(a)
                     self.player.health -= 1
                     if self.player.health == 0:
-                        sys.exit()
+                        game_over = True
+                        while game_over == True:
+                            self.game_over_screen()
                 else:
                     a += 1
+
 
 
         self.player.weapon.update_bullets(dt)
@@ -237,10 +258,12 @@ class World:
         
         self.player.draw(self.canvas, self.offset)
         self.player.weapon.draw_bullets(self.canvas, self.offset)
+        #self.show_score()
 
         mouse_pos = pygame.mouse.get_pos()
         mouse_pos = Vec2(mouse_pos[0]*self.canvas.get_rect().width/self.screen.get_rect().width, mouse_pos[1]*self.canvas.get_rect().height/self.screen.get_rect().height)
 
         # Draw resized image on screen
         self.screen.blit(pygame.transform.scale(self.canvas, self.screen.get_rect().size), (0, 0))
-        
+
+

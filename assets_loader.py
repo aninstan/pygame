@@ -7,7 +7,8 @@ from character import Character
 from constants import WEAPON_ROTATE_RESOLUTION
 
 
-tile_img = pygame.image.load("assets/floortile2.png")
+tile1_img = pygame.image.load("assets/floortile1.png")
+tile2_img = pygame.image.load("assets/floortile2.png")
 
 player_sprite_sheet_image = pygame.image.load('assets/character_animations.png')
 player_sprite_sheet = SpriteSheet(player_sprite_sheet_image)
@@ -28,8 +29,6 @@ rotated_flare_gun_array = animation.create_rotated_image_array(flare_gun_img, Ve
 
 player_bullet_img = pygame.image.load("./assets/bullet.png")
 enemy_bullet_img = pygame.image.load("./assets/enemy_bullet.png")
-buffed_bird_img = pygame.image.load("./assets/buffed_bird_yes.png")
-
 
 gun = Weapon(Vec2(0, 0), Vec2(31, -7), 15, rotated_gun_array, player_bullet_img)
 player_flare_gun = Weapon(Vec2(0, 0), Vec2(10, -5), 15, rotated_flare_gun_array, player_bullet_img)

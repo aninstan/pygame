@@ -6,7 +6,7 @@ from vec2 import Vec2
 from game_classes import GameObject, Weapon
 from character import Character
 from screen import create_screen_and_canvas
-from assets_loader import tile_img, bullet_enemy_animation_list, bullet_enemy_hand_img, rotated_flare_gun_array, enemy_bullet_img, font_location
+from assets_loader import tile1_img, tile2_img, bullet_enemy_animation_list, bullet_enemy_hand_img, rotated_flare_gun_array, enemy_bullet_img, font_location
 from constants import TILE_SIZE, ANIMATION_FPS, BLACK, WHITE
 
 
@@ -25,6 +25,11 @@ class World:
         self.floortiles: list[GameObject] = []
         for y in range(height):
             for x in range(width):
+                randint = random.randint(0, 1)
+                if randint == 0:
+                    tile_img = tile1_img
+                else:
+                    tile_img = tile2_img
                 self.floortiles.append(GameObject(Vec2(x*TILE_SIZE - TILE_SIZE*width/2, y*TILE_SIZE - TILE_SIZE*height/2), tile_img))
         
         self.enemies: list[Character] = []

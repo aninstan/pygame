@@ -6,7 +6,7 @@ from vec2 import Vec2
 from game_classes import GameObject, Weapon
 from character import Character
 from screen import create_screen_and_canvas
-from assets_loader import tile1_img, tile2_img, bullet_enemy_animation_list, bullet_enemy_hand_img, rotated_flare_gun_array, enemy_bullet_img, font_location
+from assets_loader import tile1_img, tile2_img, bullet_enemy_animation_list, bullet_enemy_hand_img, rotated_flare_gun_array, enemy_bullet_img, font24, font82
 from constants import TILE_SIZE, ANIMATION_FPS, BLACK, WHITE
 
 
@@ -138,36 +138,26 @@ class World:
                         self.player.weapon.shoot()
                         self.player.previous_shoot_time = time
 
-    def draw_text(self, text, size, x, y):
-        font = pygame.font.Font(font_location, size)
+
+    def draw_text(self, surface: pygame.Surface, text: str, font: pygame.font.Font, x: int, y: int):
         text_surface = font.render(text, True, WHITE)
         text_rect = text_surface.get_rect()
         text_rect.midtop = (x, y)
-        self.screen.blit(text_surface, text_rect)
+        surface.blit(text_surface, text_rect)
 
-    def game_over_screen(self): #Denne crasher hjelp :(
-        self.screen_rect = self.screen.get_rect()
-        self.screen.blit(self.screen, self.screen_rect)
+
+    def game_over_screen(self):
         self.screen.fill(BLACK)
-        self.draw_text("GAME OVER", 82, 750, 300)
-        self.draw_text(("Points: " + str(self.player_score)), 24, 750, 420)
-        pygame.display.flip()
-        pygame.time.delay(3000)
-        sys.exit()
+        self.draw_text(self.screen, "GAME OVER", font82, self.screen.get_width()/2, self.screen.get_height()*0.4)
+        self.draw_text(self.screen, f'Points: {self.player_score}', font24, self.screen.get_width()/2, self.screen.get_height()*0.6)
+
 
     def show_score(self): #stygt men funker
-        self.canvas_rect = self.canvas.get_rect()
-        self.canvas.blit(self.canvas, self.canvas_rect)
-        self.draw_text(("Points: " + str(self.player_score)), 15, 60, 20)
-        pygame.display.flip()
-        
+        self.draw_text(self.screen, f'Points: {self.player_score}', font24, 80, 20)
         
 
     def show_health(self):#stygt men funker
-        self.canvas_rect = self.canvas.get_rect()
-        self.canvas.blit(self.canvas, self.canvas_rect)
-        self.draw_text(("HP: " + (str(self.player.health))), 15, 60, 40)
-        pygame.display.flip()
+        self.draw_text(self.screen, f'HP: {self.player.health}', font24, 80, 48)
         
 
     def update(self, time, dt):
@@ -217,9 +207,12 @@ class World:
                     enemy.weapon.bullets.pop(a)
                     self.player.health -= 1
                     if self.player.health == 0:
-                        game_over = True
-                        while game_over == True:
-                            self.game_over_screen()
+
+                        # Game Over
+                        self.game_over_screen()
+                        pygame.display.flip()
+                        pygame.time.delay(3000)
+                        sys.exit()
                 else:
                     a += 1
 
@@ -252,7 +245,6 @@ class World:
                         self.player_score += 1
                         self.spawn_enemy(Vec2(random.randint(- self.width * TILE_SIZE / 2, self.width * TILE_SIZE / 2), random.randint(- self.height * TILE_SIZE / 2, self.height * TILE_SIZE / 2)))
                         self.enemies[-1].previous_shoot_time = random.randint(time + 1000, time + 3000)
-                        print(self.player_score)
 
                     break
             
@@ -275,8 +267,6 @@ class World:
         
         self.player.draw(self.canvas, self.offset)
         self.player.weapon.draw_bullets(self.canvas, self.offset)
-        self.show_score()
-        self.show_health()
 
         mouse_pos = pygame.mouse.get_pos()
         mouse_pos = Vec2(mouse_pos[0]*self.canvas.get_rect().width/self.screen.get_rect().width, mouse_pos[1]*self.canvas.get_rect().height/self.screen.get_rect().height)
@@ -284,4 +274,5 @@ class World:
         # Draw resized image on screen
         self.screen.blit(pygame.transform.scale(self.canvas, self.screen.get_rect().size), (0, 0))
 
-
+        self.show_score()
+        self.show_health()

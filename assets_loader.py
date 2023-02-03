@@ -37,3 +37,5 @@ player = Character(Vec2(-10, -15), Vec2(16, 17), 6, 3, 300, player_animation_lis
 
 pygame.font.init()
 font_location = "./assets/Grand9KPixel.ttf"
+font24 = pygame.font.Font(font_location, 24)
+font82 = pygame.font.Font(font_location, 82)

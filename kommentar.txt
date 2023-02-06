@@ -1,0 +1,3 @@
+Flott spel!
+
+Ein kjapp utvidelse, kan vere å slenge inn ein funksjon som let deg lagre highscore...
